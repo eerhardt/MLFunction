@@ -3,14 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.ML.Legacy;
+using Microsoft.ML.Core.Data;
 using Microsoft.ML.Runtime.Api;
+using Microsoft.ML.Runtime.Data;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace MLFunction
 {
@@ -56,10 +57,23 @@ namespace MLFunction
             "model",
             "GitHubIssueLabelerModel.zip");
 
-        public static async Task<string> PredictAsync(GitHubIssue issue, TraceWriter log)
+        private static readonly LocalEnvironment s_environment = new LocalEnvironment();
+        private static readonly Lazy<ITransformer> s_loadedModel = new Lazy<ITransformer>(LoadModel);
+
+        private static ITransformer LoadModel()
         {
-            PredictionModel<GitHubIssue, GitHubIssuePrediction> model = await PredictionModel.ReadAsync<GitHubIssue, GitHubIssuePrediction>(ModelPath);
-            GitHubIssuePrediction prediction = model.Predict(issue);
+            using (var stream = new FileStream(ModelPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                return TransformerChain.LoadFrom(s_environment, stream);
+            }
+        }
+
+        public static string Predict(GitHubIssue issue, TraceWriter log)
+        {
+            // Create prediction engine and test predictions.
+            var engine = s_loadedModel.Value.MakePredictionFunction<GitHubIssue, GitHubIssuePrediction>(s_environment);
+
+            GitHubIssuePrediction prediction = engine.Predict(issue);
 
             float[] probabilities = prediction.Probabilities;
             float maxProbability = probabilities.Max();

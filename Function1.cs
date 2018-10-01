@@ -10,7 +10,7 @@ namespace MLFunction
     public static class Function1
     {
         [FunctionName("Function1")]
-        public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
+        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
         {
             //GitHubIssue issue = data.Issue;
             //List<object> labels = issue.Labels;
@@ -104,7 +104,7 @@ public static object FloatEnum
                     Description = body
                 };
 
-                string label = await Predictor.PredictAsync(corefxIssue, log);
+                string label = Predictor.Predict(corefxIssue, log);
                 log.Info($"Labeling completed: {label}");
             //}
             //else

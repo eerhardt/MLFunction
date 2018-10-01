@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.ML;
+using Microsoft.ML.Legacy;
 using Microsoft.ML.Runtime.Api;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -31,9 +31,11 @@ namespace MLFunction
         public string Description;
 
         [DataMember(Name = "labels")]
+        [NoColumnAttribute]
         public List<object> Labels { get; set; }
 
         [DataMember(Name = "number")]
+        [NoColumnAttribute]
         public int Number { get; set; }
     }
 
@@ -63,7 +65,7 @@ namespace MLFunction
             float maxProbability = probabilities.Max();
             log.Info($"Label {prediction.Area} for {issue.ID} is predicted with confidence {maxProbability.ToString()}");
 
-            return maxProbability > 0.8 ? prediction.Area : null;
+            return prediction.Area;
         }
     }
 }

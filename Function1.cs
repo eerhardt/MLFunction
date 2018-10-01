@@ -12,12 +12,6 @@ namespace MLFunction
         [FunctionName("Function1")]
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
         {
-            if (typeof(Microsoft.ML.Runtime.Data.LoadTransform) != 
-                typeof(Microsoft.ML.Runtime.Learners.LinearClassificationTrainer))
-            {
-                log.Info("Assemblies are loaded perfectly");
-            }
-
             //GitHubIssue issue = data.Issue;
             //List<object> labels = issue.Labels;
 
